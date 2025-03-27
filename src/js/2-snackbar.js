@@ -1,39 +1,35 @@
-
 import iziToast from 'izitoast';
-
 import 'izitoast/dist/css/iziToast.min.css';
 
 const form = document.querySelector('.form');
 
 form.addEventListener('submit', event => {
   event.preventDefault();
-  const delay = form.elements.delay.value;
+  
+  const delay = Number(form.elements.delay.value); // Перетворення рядка у число
   const state = form.elements.state.value;
-  const promis = createPromis(delay, state);
+  const promise = createPromise(delay, state);
 
-  function createPromis(delay, state) {
-    const promis = new Promise((resolv, reject) => {
+  function createPromise(delay, state) {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        if (state.toUpperCase() === 'FULFILLED') {
-          resolv(delay);
-        } else {
+        if (state === 'fulfilled') {
+          resolve(delay);
+        } else if (state === 'rejected') {
           reject(delay);
         }
       }, delay);
     });
-    return promis;
   }
 
-  promis
+  promise
     .then(result => {
       iziToast.success({
-        position: 'topRight',
         message: `Fulfilled promise in ${result}ms`,
       });
     })
     .catch(result => {
       iziToast.error({
-        position: 'topRight',
         message: `Rejected promise in ${result}ms`,
       });
     });

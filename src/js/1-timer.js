@@ -1,4 +1,3 @@
-
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -12,51 +11,50 @@ const hours = document.querySelector('span[data-hours]');
 const minutes = document.querySelector('span[data-minutes]');
 const seconds = document.querySelector('span[data-seconds]');
 
-let userSelectedDate;
+let userSelectedDate = null;
 
 const options = {
   enableTime: true,
   time_24hr: true,
-  defaultDate: Date.now(),
+  defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
     userSelectedDate = selectedDates[0];
-    if (userSelectedDate < options.defaultDate) {
+    if (userSelectedDate < Date.now()) {
       buttonTimer.setAttribute('disabled', '');
-      buttonTimer.setAttribute(
-        'style',
-        'background-color: #CFCFCF; color: #989898;'
-      );
+      buttonTimer.style.backgroundColor = '#CFCFCF';
+      buttonTimer.style.color = '#989898';
 
       iziToast.error({
         message: 'Please choose a date in the future',
       });
     } else {
       buttonTimer.removeAttribute('disabled');
-      buttonTimer.removeAttribute('style');
-      buttonTimer.addEventListener('click', activeTimer);
+      buttonTimer.style.backgroundColor = '';
+      buttonTimer.style.color = '';
     }
   },
 };
 
 flatpickr('#datetime-picker', options);
 
+buttonTimer.addEventListener('click', activeTimer);
+
 function activeTimer() {
   inputTimer.setAttribute('disabled', '');
   buttonTimer.setAttribute('disabled', '');
-  buttonTimer.setAttribute(
-    'style',
-    'background-color: #CFCFCF; color: #989898;'
-  );
-  let diffTime = userSelectedDate - options.defaultDate;
+  buttonTimer.style.backgroundColor = '#CFCFCF';
+  buttonTimer.style.color = '#989898';
+
+  let diffTime = userSelectedDate - Date.now(); // Використовуємо поточний час
   const secondInterval = setInterval(() => {
     if (diffTime > 0) {
-      let newTimer = convertMs(diffTime);
+      const newTimer = convertMs(diffTime);
 
-      days.textContent = `${addZero(newTimer.days)}`;
-      hours.textContent = `${addZero(newTimer.hours)}`;
-      minutes.textContent = `${addZero(newTimer.minutes)}`;
-      seconds.textContent = `${addZero(newTimer.seconds)}`;
+      days.textContent = addZero(newTimer.days);
+      hours.textContent = addZero(newTimer.hours);
+      minutes.textContent = addZero(newTimer.minutes);
+      seconds.textContent = addZero(newTimer.seconds);
 
       diffTime -= 1000;
     } else {
@@ -66,19 +64,14 @@ function activeTimer() {
 }
 
 function convertMs(ms) {
-  // Number of milliseconds per unit of time
   const second = 1000;
   const minute = second * 60;
   const hour = minute * 60;
   const day = hour * 24;
 
-  // Remaining days
   const days = Math.floor(ms / day);
-  // Remaining hours
   const hours = Math.floor((ms % day) / hour);
-  // Remaining minutes
   const minutes = Math.floor(((ms % day) % hour) / minute);
-  // Remaining seconds
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
   return { days, hours, minutes, seconds };
